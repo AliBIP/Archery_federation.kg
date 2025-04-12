@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container">
+    <section class="section">
+        <h1 class="section-title">News</h1>
+        <div class="news-grid">
+            {% for news_item in news %}
+            <article class="news-card">
+                {% if news_item.image_url %}
+                <img src="{{ news_item.image_url }}" alt="{{ news_item.title }}">
+                {% endif %}
+                <div class="news-card-content">
+                    <h3>{{ news_item.title }}</h3>
+                    <p class="news-card-date">{{ news_item.date.strftime('%B %d, %Y') }}</p>
+                    <p>{{ news_item.content[:200] }}...</p>
+                    <a href="{{ url_for('news_detail', id=news_item.id) }}">Read more</a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}

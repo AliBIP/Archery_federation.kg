@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container">
+    <section class="section">
+        <h1 class="section-title">Upcoming Events</h1>
+        <div class="event-list">
+            {% for event in events %}
+            <div class="event-item">
+                <h3>{{ event.title }}</h3>
+                <p>Date: {{ event.date.strftime('%B %d, %Y at %H:%M') }}</p>
+                <p>Location: {{ event.location }}</p>
+                <p>Contact: {{ event.contact }}</p>
+                <p>{{ event.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}

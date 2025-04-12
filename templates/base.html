@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Archery Federation of Kyrgyzstan{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">Archery Federation KG</div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('news') }}">News</a></li>
+                <li><a href="{{ url_for('events') }}">Events</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <h3>Archery Federation of Kyrgyzstan</h3>
+                <p>Promoting archery sports in Kyrgyzstan</p>
+            </div>
+            <div>
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('news') }}">News</a></li>
+                    <li><a href="{{ url_for('events') }}">Events</a></li>
+                    <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3>Contact</h3>
+                <p>Email: info@archery.kg</p>
+                <p>Phone: +996 XXX XXX XXX</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

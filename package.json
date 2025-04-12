@@ -1,0 +1,9 @@
+{
+  "name": "archery-federation-website",
+  "private": true,
+  "scripts": {
+    "start": "python app.py",
+    "test": "python -m pytest"
+  },
+  "dependencies": {}
+}

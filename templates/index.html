@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1>Welcome to the Archery Federation of Kyrgyzstan</h1>
+        <p>Promoting and developing archery sports in Kyrgyzstan</p>
+    </div>
+</section>
+
+<main class="container">
+    <section class="section">
+        <h2 class="section-title">Latest News</h2>
+        <div class="news-grid">
+            {% for news_item in news %}
+            <article class="news-card">
+                {% if news_item.image_url %}
+                <img src="{{ news_item.image_url }}" alt="{{ news_item.title }}">
+                {% endif %}
+                <div class="news-card-content">
+                    <h3>{{ news_item.title }}</h3>
+                    <p class="news-card-date">{{ news_item.date.strftime('%B %d, %Y') }}</p>
+                    <p>{{ news_item.content[:200] }}...</p>
+                    <a href="{{ url_for('news_detail', id=news_item.id) }}">Read more</a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Upcoming Events</h2>
+        <div class="event-list">
+            {% for event in events %}
+            <div class="event-item">
+                <h3>{{ event.title }}</h3>
+                <p>{{ event.date.strftime('%B %d, %Y at %H:%M') }}</p>
+                <p>Location: {{ event.location }}</p>
+                <p>{{ event.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container">
+    <article class="section">
+        <h1 class="section-title">{{ news.title }}</h1>
+        <p class="news-card-date">{{ news.date.strftime('%B %d, %Y') }}</p>
+        {% if news.image_url %}
+        <img src="{{ news.image_url }}" alt="{{ news.title }}" style="max-width: 100%; margin: 2rem 0;">
+        {% endif %}
+        <div class="news-content">
+            {{ news.content }}
+        </div>
+    </article>
+</main>
+{% endblock %}
