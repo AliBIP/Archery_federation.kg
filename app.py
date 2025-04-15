@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_admin import Admin
@@ -7,10 +7,10 @@ import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///archery.db'
-app.config['SECRET_KEY'] = 'your-secret-key'  # Change this in production
+app.config['SECRET_KEY'] = 'your-secret-key'
 db = SQLAlchemy(app)
 
-# Models
+
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -26,11 +26,46 @@ class Event(db.Model):
     date = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.String(200))
     contact = db.Column(db.String(200))
+    image_url = db.Column(db.String(200))
+
+    def __str__(self):
+        return self.title  # отображение в админке
+
+class Participant(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(20))
+    email = db.Column(db.String(100))
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    event = db.relationship('Event', backref=db.backref('participants', lazy=True))
 
 # Admin Views
+class ParticipantModelView(ModelView):
+    column_list = ('name', 'email', 'phone', 'event')
+    column_labels = {'event': 'Соревнование'}
+    column_filters = ['event']
+    column_searchable_list = ['name', 'email']
+    column_sortable_list = ['name', 'email', 'event']
+
 admin = Admin(app, name='Archery Federation Admin', template_mode='bootstrap3')
 admin.add_view(ModelView(News, db.session))
 admin.add_view(ModelView(Event, db.session))
+admin.add_view(ParticipantModelView(Participant, db.session))
+
+
+@app.route('/register/<int:event_id>', methods=['GET', 'POST'])
+def register(event_id):
+    event = Event.query.get_or_404(event_id)
+    if request.method == 'POST':
+        name = request.form['name']
+        phone = request.form['phone']
+        email = request.form['email']
+        participant = Participant(name=name, phone=phone, email=email, event=event)
+        db.session.add(participant)
+        db.session.commit()
+        flash('Вы успешно зарегистрировались на мероприятие!', 'success')
+        return redirect(url_for('events'))
+    return render_template('register.html', event=event)
 
 @app.route('/')
 def home():

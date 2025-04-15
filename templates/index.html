@@ -32,12 +32,19 @@
         <h2 class="section-title">Upcoming Events</h2>
         <div class="event-list">
             {% for event in events %}
-            <div class="event-item">
+            <article class="news-card">
+                    {% if event.image_url %}
+        <img src="{{ event.image_url }}" alt="Event image">
+    {% endif %}
+             <div class="news-card-content">
                 <h3>{{ event.title }}</h3>
-                <p>{{ event.date.strftime('%B %d, %Y at %H:%M') }}</p>
-                <p>Location: {{ event.location }}</p>
-                <p>{{ event.description }}</p>
+                <p><strong>Date: </strong>{{ event.date.strftime('%B %d, %Y at %H:%M') }}</p>
+                <p><strong>Location:</strong> {{ event.location }}</p>
+                <p><strong>Contact:</strong> {{ event.contact }}</p>
+                <p>{{ event.description[:200] }}....</p>
+                <a href="{{ url_for('events') }}">Read more</a>
             </div>
+            </article>
             {% endfor %}
         </div>
     </section>

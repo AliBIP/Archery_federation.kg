@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container">
+    <section class="section">
+        <h1>Регистрация на мероприятие: {{ event.title }}</h1>
+        <form method="POST">
+            <label for="name">Имя:</label>
+            <input type="text" name="name" required>
+
+            <label for="phone">Телефон:</label>
+            <input type="text" name="phone">
+
+            <label for="email">Email:</label>
+            <input type="email" name="email">
+
+            <button type="submit">Отправить</button>
+        </form>
+    </section>
+</main>
+{% endblock %}
