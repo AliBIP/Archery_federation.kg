@@ -22,7 +22,7 @@ class News(db.Model):
     date = db.Column(db.DateTime, default=datetime.utcnow)
     category = db.Column(db.String(50))
     image_url = db.Column(db.String(200))
-    image = db.Column(db.String(100))  # File name
+    image = db.Column(db.String(100)) 
 
 
 class Event(db.Model):
@@ -33,7 +33,7 @@ class Event(db.Model):
     location = db.Column(db.String(200))
     contact = db.Column(db.String(200))
     image_url = db.Column(db.String(200))
-    image = db.Column(db.String(100))  # File name
+    image = db.Column(db.String(100))  
 
     participants = db.relationship('Participant', back_populates='event', lazy=True, cascade='all, delete-orphan')
 
@@ -50,7 +50,7 @@ class Participant(db.Model):
     event = db.relationship('Event', back_populates='participants')
 
 
-# Admin views
+
 class NewsModelView(ModelView):
     form_extra_fields = {
         'image': ImageUploadField(
