@@ -7,19 +7,21 @@
         <div class="event-list">
             {% for event in events %}
             <article class="news-card">
-                    {% if event.image_url %}
-        <img src="{{ event.image_url }}" alt="Event image">
-    {% endif %}
-             <div class="news-card-content">
-                <h3>{{ event.title }}</h3>
-                <p><strong>Date: </strong>{{ event.date.strftime('%B %d, %Y at %H:%M') }}</p>
-                <p><strong>Location:</strong> {{ event.location }}</p>
-                <p><strong>Contact:</strong> {{ event.contact }}</p>
-                <p>{{ event.description }}</p>
-                <a href="{{ url_for('register', event_id=event.id) }}" class="btn">Зарегистрироваться</a>
-
-
-            </div>
+                {% if event.image_url %}
+                    <img src="{{ event.image_url }}" alt="{{ event.title }}">
+                {% elif event.image %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ event.image) }}" alt="{{ event.title }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+                {% endif %}
+                <div class="news-card-content">
+                    <h3>{{ event.title }}</h3>
+                    <p><strong>Date:</strong> {{ event.date.strftime('%B %d, %Y at %H:%M') }}</p>
+                    <p><strong>Location:</strong> {{ event.location }}</p>
+                    <p><strong>Contact:</strong> {{ event.contact }}</p>
+                    <p>{{ event.description }}</p>
+                    <a href="{{ url_for('register', event_id=event.id) }}" class="btn">Зарегистрироваться</a>
+                </div>
             </article>
             {% endfor %}
         </div>

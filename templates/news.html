@@ -7,9 +7,13 @@
         <div class="news-grid">
             {% for news_item in news %}
             <article class="news-card">
-                {% if news_item.image_url %}
+            {% if news_item.image_url %}
                 <img src="{{ news_item.image_url }}" alt="{{ news_item.title }}">
-                {% endif %}
+            {% elif news_item.image %}
+                <img src="{{ url_for('static', filename='uploads/' ~ news_item.image) }}" alt="{{ news_item.title }}">
+            {% else %}
+                <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+            {% endif %}
                 <div class="news-card-content">
                     <h3>{{ news_item.title }}</h3>
                     <p class="news-card-date">{{ news_item.date.strftime('%B %d, %Y') }}</p>

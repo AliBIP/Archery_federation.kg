@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.form import ImageUploadField
 import os
 
 app = Flask(__name__)
@@ -10,6 +11,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///archery.db'
 app.config['SECRET_KEY'] = 'your-secret-key'
 db = SQLAlchemy(app)
 
+UPLOAD_PATH = os.path.join(os.path.dirname(__file__), 'static/uploads')
+
+os.makedirs(UPLOAD_PATH, exist_ok=True)
 
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -18,6 +22,8 @@ class News(db.Model):
     date = db.Column(db.DateTime, default=datetime.utcnow)
     category = db.Column(db.String(50))
     image_url = db.Column(db.String(200))
+    image = db.Column(db.String(100))  # File name
+
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,12 +33,13 @@ class Event(db.Model):
     location = db.Column(db.String(200))
     contact = db.Column(db.String(200))
     image_url = db.Column(db.String(200))
+    image = db.Column(db.String(100))  # File name
 
-    
     participants = db.relationship('Participant', back_populates='event', lazy=True, cascade='all, delete-orphan')
 
     def __str__(self):
-        return self.title  
+        return self.title
+
 
 class Participant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,7 +48,29 @@ class Participant(db.Model):
     email = db.Column(db.String(100))
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
     event = db.relationship('Event', back_populates='participants')
-    
+
+
+# Admin views
+class NewsModelView(ModelView):
+    form_extra_fields = {
+        'image': ImageUploadField(
+            'Изображение',
+            base_path=UPLOAD_PATH,
+            relative_path='',
+            url_relative_path='/static/uploads/'
+        )
+    }
+
+
+class EventModelView(ModelView):
+    form_extra_fields = {
+        'image': ImageUploadField(
+            'Изображение',
+            base_path=UPLOAD_PATH,
+            relative_path='',
+            url_relative_path='/static/uploads/'
+        )
+    }
 
 
 class ParticipantModelView(ModelView):
@@ -51,10 +80,40 @@ class ParticipantModelView(ModelView):
     column_searchable_list = ['name', 'email']
     column_sortable_list = ['name', 'email', 'event']
 
+
 admin = Admin(app, name='Archery Federation Admin', template_mode='bootstrap3')
-admin.add_view(ModelView(News, db.session))
-admin.add_view(ModelView(Event, db.session))
+admin.add_view(NewsModelView(News, db.session))
+admin.add_view(EventModelView(Event, db.session))
 admin.add_view(ParticipantModelView(Participant, db.session))
+
+
+@app.route('/')
+def home():
+    latest_news = News.query.order_by(News.date.desc()).limit(3).all()
+    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow()).order_by(Event.date).limit(3).all()
+    return render_template('index.html', news=latest_news, events=upcoming_events)
+
+
+@app.route('/news')
+def news():
+    category = request.args.get('category')
+    if category:
+        news_items = News.query.filter_by(category=category).order_by(News.date.desc()).all()
+    else:
+        news_items = News.query.order_by(News.date.desc()).all()
+    return render_template('news.html', news=news_items)
+
+
+@app.route('/news/<int:id>')
+def news_detail(id):
+    news_item = News.query.get_or_404(id)
+    return render_template('news_detail.html', news=news_item)
+
+
+@app.route('/events')
+def events():
+    events = Event.query.order_by(Event.date).all()
+    return render_template('events.html', events=events)
 
 
 @app.route('/register/<int:event_id>', methods=['GET', 'POST'])
@@ -71,35 +130,11 @@ def register(event_id):
         return redirect(url_for('events'))
     return render_template('register.html', event=event)
 
-@app.route('/')
-def home():
-    latest_news = News.query.order_by(News.date.desc()).limit(3).all()
-    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow()).order_by(Event.date).limit(3).all()
-    return render_template('index.html', news=latest_news, events=upcoming_events)
-
-@app.route('/news')
-def news():
-    category = request.args.get('category')
-    if category:
-        news_items = News.query.filter_by(category=category).order_by(News.date.desc()).all()
-    else:
-        news_items = News.query.order_by(News.date.desc()).all()
-    return render_template('news.html', news=news_items)
-
-@app.route('/news/<int:id>')
-def news_detail(id):
-    news_item = News.query.get_or_404(id)
-    return render_template('news_detail.html', news=news_item)
-
-@app.route('/events')
-def events():
-    events = Event.query.order_by(Event.date).all()
-    
-    return render_template('events.html', events=events)
 
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
+
 
 if __name__ == '__main__':
     with app.app_context():
