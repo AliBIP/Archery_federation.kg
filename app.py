@@ -89,7 +89,8 @@ def news_detail(id):
 
 @app.route('/events')
 def events():
-    events = Event.query.filter(Event.date >= datetime.utcnow()).order_by(Event.date).all()
+    events = Event.query.order_by(Event.date).all()
+    
     return render_template('events.html', events=events)
 
 @app.route('/contact')
