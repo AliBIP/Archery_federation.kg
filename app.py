@@ -28,8 +28,11 @@ class Event(db.Model):
     contact = db.Column(db.String(200))
     image_url = db.Column(db.String(200))
 
+    
+    participants = db.relationship('Participant', back_populates='event', lazy=True, cascade='all, delete-orphan')
+
     def __str__(self):
-        return self.title  # отображение в админке
+        return self.title  
 
 class Participant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,9 +40,10 @@ class Participant(db.Model):
     phone = db.Column(db.String(20))
     email = db.Column(db.String(100))
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
-    event = db.relationship('Event', backref=db.backref('participants', lazy=True))
+    event = db.relationship('Event', back_populates='participants')
+    
 
-# Admin Views
+
 class ParticipantModelView(ModelView):
     column_list = ('name', 'email', 'phone', 'event')
     column_labels = {'event': 'Соревнование'}
