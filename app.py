@@ -112,7 +112,7 @@ def news_detail(id):
 
 @app.route('/events')
 def events():
-    events = Event.query.order_by(Event.date).all()
+    events = Event.query.order_by(Event.date.desc()).all()
     return render_template('events.html', events=events)
 
 
