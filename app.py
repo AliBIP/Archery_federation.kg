@@ -1,10 +1,16 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from flask_admin import Admin
+from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import ImageUploadField
+from wtforms.fields import SelectField
 import os
+from io import BytesIO
+import openpyxl
+from openpyxl.utils import get_column_letter
+from reportlab.pdfgen import canvas
+from docx import Document
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///archery.db'
@@ -12,7 +18,6 @@ app.config['SECRET_KEY'] = 'your-secret-key'
 db = SQLAlchemy(app)
 
 UPLOAD_PATH = os.path.join(os.path.dirname(__file__), 'static/uploads')
-
 os.makedirs(UPLOAD_PATH, exist_ok=True)
 
 class News(db.Model):
@@ -24,7 +29,6 @@ class News(db.Model):
     image_url = db.Column(db.String(200))
     image = db.Column(db.String(100)) 
 
-
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -34,23 +38,21 @@ class Event(db.Model):
     contact = db.Column(db.String(200))
     image_url = db.Column(db.String(200))
     image = db.Column(db.String(100))
-    gender_category = db.Column(db.String(10))  
+    gender_category = db.Column(db.String(10))  # Мужской / Женский / Оба
 
     participants = db.relationship('Participant', back_populates='event', lazy=True, cascade='all, delete-orphan')
 
     def __str__(self):
         return self.title
 
-
 class Participant(db.Model):
+    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20))
     email = db.Column(db.String(100))
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
     event = db.relationship('Event', back_populates='participants')
-
-
 
 class NewsModelView(ModelView):
     form_extra_fields = {
@@ -62,7 +64,6 @@ class NewsModelView(ModelView):
         )
     }
 
-
 class EventModelView(ModelView):
     form_extra_fields = {
         'image': ImageUploadField(
@@ -70,9 +71,12 @@ class EventModelView(ModelView):
             base_path=UPLOAD_PATH,
             relative_path='',
             url_relative_path='/static/uploads/'
+        ),
+        'gender_category': SelectField(
+            'Категория по полу',
+            choices=[('Мужской', 'Мужской'), ('Женский', 'Женский'), ('Оба', 'Оба')]
         )
     }
-
 
 class ParticipantModelView(ModelView):
     column_list = ('name', 'email', 'phone', 'event')
@@ -80,12 +84,99 @@ class ParticipantModelView(ModelView):
     column_filters = ['event']
     column_searchable_list = ['name', 'email']
     column_sortable_list = ['name', 'email', 'event']
+    can_create = False
 
 
+# 📄 Экспорт в PDF
+class ExportParticipantsPDF(BaseView):
+    @expose('/')
+    def index(self):
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer)
+        p.setFont("Helvetica", 12)
+
+        participants = Participant.query.all()
+        y = 800
+        p.drawString(200, y + 20, "Список участников")
+
+        for participant in participants:
+            y -= 20
+            line = f"{participant.name} | {participant.email} | {participant.phone} | {participant.event.title}"
+            p.drawString(50, y, line)
+            if y < 50:
+                p.showPage()
+                y = 800
+
+        p.save()
+        buffer.seek(0)
+
+        return send_file(buffer, as_attachment=True, download_name="participants.pdf", mimetype='application/pdf')
+
+
+# 📄 Экспорт в Excel
+class ExportParticipantsExcel(BaseView):
+    @expose('/')
+    def index(self):
+        participants = Participant.query.all()
+
+        # Создание Excel-файла
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Participants"
+        
+        # Заголовки
+        headers = ['Имя', 'Email', 'Телефон', 'Соревнование']
+        for col_num, header in enumerate(headers, 1):
+            ws[f"{get_column_letter(col_num)}1"] = header
+
+        # Заполнение данными
+        for row_num, participant in enumerate(participants, 2):
+            ws[f"A{row_num}"] = participant.name
+            ws[f"B{row_num}"] = participant.email
+            ws[f"C{row_num}"] = participant.phone
+            ws[f"D{row_num}"] = participant.event.title
+
+        # Сохранение в буфер
+        buffer = BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+
+        return send_file(buffer, as_attachment=True, download_name="participants.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+# 📄 Экспорт в DOCX
+class ExportParticipantsDOCX(BaseView):
+    @expose('/')
+    def index(self):
+        participants = Participant.query.all()
+
+        # Создание документа Word
+        doc = Document()
+        doc.add_heading('Список участников', 0)
+
+        # Заголовки
+        doc.add_paragraph('Имя | Email | Телефон | Соревнование')
+
+        # Заполнение данными
+        for participant in participants:
+            doc.add_paragraph(f"{participant.name}    | {    participant.email}    |   {participant.phone}    |     {participant.event.title}")
+
+        # Сохранение в буфер
+        buffer = BytesIO()
+        doc.save(buffer)
+        buffer.seek(0)
+
+        return send_file(buffer, as_attachment=True, download_name="participants.docx", mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
+
+# 🛠 Admin Panel
 admin = Admin(app, name='Archery Federation Admin', template_mode='bootstrap3')
 admin.add_view(NewsModelView(News, db.session))
 admin.add_view(EventModelView(Event, db.session))
 admin.add_view(ParticipantModelView(Participant, db.session))
+admin.add_view(ExportParticipantsPDF(name='Экспорт в PDF', endpoint='export_pdf'))
+admin.add_view(ExportParticipantsExcel(name='Экспорт в Excel', endpoint='export_excel'))
+admin.add_view(ExportParticipantsDOCX(name='Экспорт в DOCX', endpoint='export_docx'))
 
 
 @app.route('/')
@@ -113,7 +204,11 @@ def news_detail(id):
 
 @app.route('/events')
 def events():
-    events = Event.query.order_by(Event.date.desc()).all()
+    gender = request.args.get('gender')
+    query = Event.query
+    if gender in ['Мужской', 'Женский']:
+        query = query.filter_by(gender_category=gender)
+    events = query.order_by(Event.date.desc()).all()
     return render_template('events.html', events=events)
 
 
