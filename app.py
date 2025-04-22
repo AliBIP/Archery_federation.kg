@@ -33,7 +33,8 @@ class Event(db.Model):
     location = db.Column(db.String(200))
     contact = db.Column(db.String(200))
     image_url = db.Column(db.String(200))
-    image = db.Column(db.String(100))  
+    image = db.Column(db.String(100))
+    gender_category = db.Column(db.String(10))  
 
     participants = db.relationship('Participant', back_populates='event', lazy=True, cascade='all, delete-orphan')
 
