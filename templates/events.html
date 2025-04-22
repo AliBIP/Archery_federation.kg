@@ -16,6 +16,18 @@
                 {% endif %}
                 <div class="news-card-content">
                     <h3>{{ event.title }}</h3>
+                    <p><strong>Gender Category:</strong> 
+                        {% if event.gender_category == 'Мужской' %}
+                          Male
+                        {% elif event.gender_category == 'Женский' %}
+                          Female
+                        {% elif event.gender_category == 'Оба' %}
+                          Both
+                        {% else %}
+                          Not specified
+                        {% endif %}
+                      </p>
+                      
                     <p><strong>Date:</strong> {{ event.date.strftime('%B %d, %Y at %H:%M') }}</p>
                     <p><strong>Location:</strong> {{ event.location }}</p>
                     <p><strong>Contact:</strong> {{ event.contact }}</p>
