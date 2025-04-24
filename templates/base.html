@@ -9,7 +9,13 @@
 <body>
     <header class="header">
         <nav class="nav-container">
-            <div class="logo">Archery Federation KG</div>
+            <div class="logo">
+                <a href="{{ url_for('home') }}" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                    <img src="/static/css/ChatGPT Image Apr 24, 2025, 05_59_33 PM.png" alt="Logo" style="height: 40px; margin-right: 0.5rem;">
+                    <span  class="hide-on-mobile">Federation of Traditional and Horseback Archery</span>
+                </a>
+            </div>
+            
             <ul class="nav-menu">
                 <li><a href="{{ url_for('home') }}">Home</a></li>
                 <li><a href="{{ url_for('news') }}">News</a></li>
@@ -31,15 +37,32 @@
             <div>
                 <h3>Archery Federation of Kyrgyzstan</h3>
                 <p>Promoting archery sports in Kyrgyzstan</p>
+                <img src="/static/css/ChatGPT Image Apr 24, 2025, 05_59_33 PM.png" alt="Logo" style="height: 40px; margin-right: 0.5rem;">
+
             </div>
             <div>
                 <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="{{ url_for('home') }}">Home</a></li>
-                    <li><a href="{{ url_for('news') }}">News</a></li>
-                    <li><a href="{{ url_for('events') }}">Events</a></li>
-                    <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                <ul style="display: flex; gap: 1.5rem; align-items: center; list-style: none;">
+                    <li>
+                        <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; text-decoration: none; color: white;">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/google.svg" alt="Google" width="24" height="24" style="margin-right: 0.5rem;">
+                            Google
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; text-decoration: none; color: white;">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" width="24" height="24" style="margin-right: 0.5rem;">
+                            Instagram
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://wa.me/996XXXXXXXXX" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; text-decoration: none; color: white;">
+                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg" alt="WhatsApp" width="24" height="24" style="margin-right: 0.5rem;">
+                            WhatsApp
+                        </a>
+                    </li>
                 </ul>
+                
             </div>
             <div>
                 <h3>Contact</h3>
@@ -50,17 +73,17 @@
     </footer>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get the hamburger menu and navigation elements
+            
             const hamburger = document.querySelector('.hamburger');
             const navMenu = document.querySelector('.nav-menu');
             
-            // Toggle menu when hamburger is clicked
+            
             hamburger.addEventListener('click', function() {
               hamburger.classList.toggle('open');
               navMenu.classList.toggle('active');
             });
             
-            // Close menu when a nav item is clicked
+            
             const navItems = document.querySelectorAll('.nav-menu a');
             navItems.forEach(item => {
               item.addEventListener('click', function() {
@@ -69,7 +92,7 @@
               });
             });
             
-            // Close menu when clicking outside
+            
             document.addEventListener('click', function(event) {
               if (!hamburger.contains(event.target) && !navMenu.contains(event.target)) {
                 hamburger.classList.remove('open');

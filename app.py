@@ -86,33 +86,6 @@ class ParticipantModelView(ModelView):
     column_sortable_list = ['name', 'email', 'event']
     can_create = False
 
-
-# 📄 Экспорт в PDF
-class ExportParticipantsPDF(BaseView):
-    @expose('/')
-    def index(self):
-        buffer = BytesIO()
-        p = canvas.Canvas(buffer)
-        p.setFont("Helvetica", 12)
-
-        participants = Participant.query.all()
-        y = 800
-        p.drawString(200, y + 20, "Список участников")
-
-        for participant in participants:
-            y -= 20
-            line = f"{participant.name} | {participant.email} | {participant.phone} | {participant.event.title}"
-            p.drawString(50, y, line)
-            if y < 50:
-                p.showPage()
-                y = 800
-
-        p.save()
-        buffer.seek(0)
-
-        return send_file(buffer, as_attachment=True, download_name="participants.pdf", mimetype='application/pdf')
-
-
 # 📄 Экспорт в Excel
 class ExportParticipantsExcel(BaseView):
     @expose('/')
@@ -174,7 +147,6 @@ admin = Admin(app, name='Archery Federation Admin', template_mode='bootstrap3')
 admin.add_view(NewsModelView(News, db.session))
 admin.add_view(EventModelView(Event, db.session))
 admin.add_view(ParticipantModelView(Participant, db.session))
-admin.add_view(ExportParticipantsPDF(name='Экспорт в PDF', endpoint='export_pdf'))
 admin.add_view(ExportParticipantsExcel(name='Экспорт в Excel', endpoint='export_excel'))
 admin.add_view(ExportParticipantsDOCX(name='Экспорт в DOCX', endpoint='export_docx'))
 

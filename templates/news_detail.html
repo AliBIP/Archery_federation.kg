@@ -7,12 +7,13 @@
         <p class="news-card-date">{{ news.date.strftime('%B %d, %Y') }}</p>
 
         {% if news.image_url %}
-            <img src="{{ news.image_url }}" alt="{{ news.title }}">
-        {% elif news.image %}
-            <img src="{{ url_for('static', filename='uploads/' ~ news.image) }}" alt="{{ news.title }}">
-        {% else %}
-            <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
-        {% endif %}
+    <img class="responsive-img" src="{{ news.image_url }}" alt="{{ news.title }}">
+{% elif news.image %}
+    <img class="responsive-img" src="{{ url_for('static', filename='uploads/' ~ news.image) }}" alt="{{ news.title }}">
+{% else %}
+    <img class="responsive-img" src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+{% endif %}
+
 
         <div class="news-content">
             {{ news.content | safe }}
