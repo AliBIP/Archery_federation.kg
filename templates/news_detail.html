@@ -7,17 +7,36 @@
         <p class="news-card-date">{{ news.date.strftime('%B %d, %Y') }}</p>
 
         {% if news.image_url %}
-    <img class="responsive-img" src="{{ news.image_url }}" alt="{{ news.title }}">
-{% elif news.image %}
-    <img class="responsive-img" src="{{ url_for('static', filename='uploads/' ~ news.image) }}" alt="{{ news.title }}">
-{% else %}
-    <img class="responsive-img" src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
-{% endif %}
+            <img class="responsive-img" src="{{ news.image_url }}" alt="{{ news.title }}">
+        {% elif news.image %}
+            <img class="responsive-img" src="{{ url_for('static', filename='uploads/' ~ news.image) }}" alt="{{ news.title }}">
+        {% else %}
+            <img class="responsive-img" src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+        {% endif %}
 
-
-        <div class="news-content">
-            {{ news.content | safe }}
+        <div class="news-content" style="white-space: pre-line;">
+            {{ news.content }}
         </div>
+
+        {% if news.first_place or news.second_place or news.third_place or news.fourth_place %}
+        <div class="winners">
+            <h2>Победители:</h2>
+            <ul>
+                {% if news.first_place %}
+                    <li><strong>1 место:</strong> {{ news.first_place }}</li>
+                {% endif %}
+                {% if news.second_place %}
+                    <li><strong>2 место:</strong> {{ news.second_place }}</li>
+                {% endif %}
+                {% if news.third_place %}
+                    <li><strong>3 место:</strong> {{ news.third_place }}</li>
+                {% endif %}
+                {% if news.fourth_place %}
+                    <li><strong>4 место:</strong> {{ news.fourth_place }}</li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
     </article>
 </main>
 {% endblock %}
